@@ -1,12 +1,18 @@
 const express = require("express");
-const mongoose = require("mongoose");
+const morgan = require("morgan");
+const bodyParser = require("body-parser");
+const expressValidator = require("express-validator");
 //
 const app = express();
+require("dotenv").config();
 
 //Middlewares
+app.use(morgan("dev"));
+app.use(bodyParser.json());
 
-//Database Setup
+//Connect db
 const connectDB = require("./config/db");
+connectDB();
 
 //Routes
 app.get("/", (req, res) => {
