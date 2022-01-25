@@ -7,8 +7,6 @@ const app = express();
 require("dotenv").config();
 
 //Middlewares
-app.use(morgan("dev"));
-app.use(bodyParser.json());
 
 //Connect db
 const connectDB = require("./config/db");
