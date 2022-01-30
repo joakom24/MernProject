@@ -3,6 +3,7 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const User = mongoose.model("User");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 router.post("/signup", (req, res) => {
   var { name, email, password } = req.body;
   console.log(req.body);
@@ -42,5 +43,36 @@ router.post("/signup", (req, res) => {
       console.log(err);
     });
 });
+router.post("/login", (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(422).json({ error: "Please add all fields" });
+  }
+  User.findOne({ email: email }).then((savedUser) => {
+    if (!savedUser) {
+      return res.status(422).json({ error: "Invalid Email or password" });
+    }
+    bcrypt
+      .compare(password, savedUser.password)
+      .then((match) => {
+        if (match) {
+          const token = jwt.sign(
+            { _id: savedUser._id },
+            process.env.JWT_SECRET
+          );
+          res.json({ token: token });
+        } else {
+          return res.status(422).json({ error: "Invalid email or password" });
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  });
+});
+const login = require("../middlewares/login");
 
+router.get("/protected", login, (req, res) => {
+  res.send("hello");
+});
 module.exports = router;
